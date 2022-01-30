@@ -6,6 +6,8 @@ $ go run main.go [URL]
 
 ### Requirement
 
+Get slack api token from [https://api.slack.com/authentication/basics](https://api.slack.com/authentication/basics)
+
 ini.config
 
 ```

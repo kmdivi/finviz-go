@@ -2,14 +2,22 @@ package main
 
 import (
 	"log"
+	"os"
+	"strings"
 	"time"
 
 	"github.com/mxschmitt/playwright-go"
 )
 
 func main() {
-	URL := "https://www.bloomberg.co.jp/markets/stocks"
+	// URL := "https://www.bloomberg.com/markets/stocks"
 	// URL := "https://finviz.com/map.ashx"
+	URL := os.Args[1]
+	take_screenshot(URL)
+}
+
+func take_screenshot(URL string) {
+	fn := get_filename(URL)
 
 	pw, err := playwright.Run()
 	if err != nil {
@@ -25,14 +33,13 @@ func main() {
 	}
 	if _, err = page.Goto(URL, playwright.PageGotoOptions{
 		WaitUntil: playwright.WaitUntilStateLoad,
-		// WaitUntil: playwright.WaitUntilStateNetworkidle,
 	}); err != nil {
 		log.Fatalf("could not goto: %v", err)
 	}
 
 	time.Sleep(3 * time.Second)
 	if _, err = page.Screenshot(playwright.PageScreenshotOptions{
-		Path:     playwright.String("foo.png"),
+		Path:     playwright.String(fn),
 		FullPage: playwright.Bool(true),
 	}); err != nil {
 		log.Fatalf("could not create screenshot: %v", err)
@@ -43,4 +50,17 @@ func main() {
 	if err = pw.Stop(); err != nil {
 		log.Fatalf("could not stop Playwright: %v", err)
 	}
+}
+
+func get_filename(s string) string {
+	fn := ""
+	if strings.Contains(s, "http://") {
+		fn = s[strings.Index(s, "http://")+7:]
+	} else if strings.Contains(s, "https://") {
+		fn = s[strings.Index(s, "https://")+8:]
+	}
+	fn = fn[:strings.Index(fn, "/")]
+	fn += ".png"
+
+	return fn
 }

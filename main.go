@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/mxschmitt/playwright-go"
 	"gopkg.in/ini.v1"
@@ -56,6 +57,7 @@ func take_screenshot(URL string) string {
 	}); err != nil {
 		log.Fatalf("could not goto: %v", err)
 	}
+	time.Sleep(3 * time.Second)
 
 	if _, err = page.Screenshot(playwright.PageScreenshotOptions{
 		Path:     playwright.String(fn),

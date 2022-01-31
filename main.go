@@ -9,7 +9,6 @@ import (
 	"net/http"
 	"os"
 	"strings"
-	"time"
 
 	"github.com/mxschmitt/playwright-go"
 	"gopkg.in/ini.v1"
@@ -58,7 +57,25 @@ func take_screenshot(URL string) string {
 		log.Fatalf("could not goto: %v", err)
 	}
 
-	time.Sleep(5 * time.Second)
+	if _, err = page.WaitForNavigation(playwright.PageWaitForNavigationOptions{
+		// WaitUntil: playwright.WaitUntilStateNetworkidle,
+		WaitUntil: playwright.WaitUntilStateLoad,
+		// Timeout: playwright.Float(30000),
+	}); err != nil {
+		log.Fatalf("could not goto: %v", err)
+	}
+	fmt.Println("hello")
+
+	if _, err = page.WaitForSelector("div.canvas-wapper", playwright.PageWaitForSelectorOptions{
+		State: playwright.WaitForSelectorStateVisible,
+		// WaitUntil: playwright.WaitUntilStateLoad,
+		// Timeout: playwright.Float(30000),
+	}); err != nil {
+		log.Fatalf("could not goto: %v", err)
+	}
+	fmt.Println("world")
+
+	//	time.Sleep(3 * time.Second)
 	if _, err = page.Screenshot(playwright.PageScreenshotOptions{
 		Path:     playwright.String(fn),
 		FullPage: playwright.Bool(true),

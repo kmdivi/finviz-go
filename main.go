@@ -15,20 +15,15 @@ import (
 	"gopkg.in/ini.v1"
 )
 
-type slack struct {
-	TOKEN   string
-	CHANNEL string
-}
-
 func main() {
 	// URL := "https://www.bloomberg.com/markets/stocks"
 	// URL := "https://finviz.com/map.ashx"
 	URL := ""
 	if len(os.Args) < 1 {
-		URL = os.Args[1]
-	} else {
 		fmt.Println("usage:\n\t finviz [URL]")
 		os.Exit(0)
+	} else {
+		URL = os.Args[1]
 	}
 
 	cfg, err := ini.Load("ini.config")
@@ -58,12 +53,12 @@ func take_screenshot(URL string) string {
 		log.Fatalf("could not create page: %v", err)
 	}
 	if _, err = page.Goto(URL, playwright.PageGotoOptions{
-		WaitUntil: playwright.WaitUntilStateLoad,
+		WaitUntil: playwright.WaitUntilStateDomcontentloaded,
 	}); err != nil {
 		log.Fatalf("could not goto: %v", err)
 	}
 
-	time.Sleep(3 * time.Second)
+	time.Sleep(5 * time.Second)
 	if _, err = page.Screenshot(playwright.PageScreenshotOptions{
 		Path:     playwright.String(fn),
 		FullPage: playwright.Bool(true),

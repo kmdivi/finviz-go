@@ -44,7 +44,10 @@ func take_screenshot(URL string) string {
 	if err != nil {
 		log.Fatalf("could not launch playwright: %v", err)
 	}
-	browser, err := pw.WebKit.Launch()
+	browser, err := pw.Chromium.Launch(
+		playwright.BrowserTypeLaunchOptions{
+			Headless: playwright.Bool(false)},
+	)
 	if err != nil {
 		log.Fatalf("could not launch Chromium: %v", err)
 	}
@@ -59,12 +62,23 @@ func take_screenshot(URL string) string {
 	}
 	time.Sleep(3 * time.Second)
 
-	if _, err = page.Screenshot(playwright.PageScreenshotOptions{
-		Path:     playwright.String(fn),
-		FullPage: playwright.Bool(true),
-	}); err != nil {
-		log.Fatalf("could not create screenshot: %v", err)
+	if strings.Contains(URL, "finviz.com") {
+		element, _ := page.QuerySelector("div#body")
+		page.WaitForNavigation()
+		if _, err = element.Screenshot(playwright.ElementHandleScreenshotOptions{
+			Path: playwright.String(fn),
+		}); err != nil {
+			log.Fatalf("could not create screenshot: %v", err)
+		}
+	} else {
+		if _, err = page.Screenshot(playwright.PageScreenshotOptions{
+			Path:     playwright.String(fn),
+			FullPage: playwright.Bool(true),
+		}); err != nil {
+			log.Fatalf("could not create screenshot: %v", err)
+		}
 	}
+
 	if err = browser.Close(); err != nil {
 		log.Fatalf("could not close browser: %v", err)
 	}

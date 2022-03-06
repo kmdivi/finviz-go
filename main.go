@@ -22,9 +22,9 @@ func main() {
 	if len(os.Args) < 1 {
 		fmt.Println("usage:\n\t finviz [URL]")
 		os.Exit(0)
-	} else {
-		URL = os.Args[1]
-	}
+	} //else {
+	//	URL = os.Args[1]
+	//}
 
 	cfg, err := ini.Load("ini.config")
 	if err != nil {
@@ -33,12 +33,17 @@ func main() {
 	TOKEN := cfg.Section("slack").Key("token").String()
 	CHANNEL := cfg.Section("slack").Key("channel").String()
 
-	fn := take_screenshot(URL)
-	post_slack(TOKEN, CHANNEL, fn)
+	for _, v := range os.Args {
+		URL = v
+		go func(URL string, TOKEN string, CHANNEL string) {
+			fn := takeScreenshot(URL)
+			postSlack(TOKEN, CHANNEL, fn)
+		}(URL, TOKEN, CHANNEL)
+	}
 }
 
-func take_screenshot(URL string) string {
-	fn := get_filename(URL)
+func takeScreenshot(URL string) string {
+	fn := getFilename(URL)
 
 	pw, err := playwright.Run()
 	if err != nil {
@@ -89,7 +94,7 @@ func take_screenshot(URL string) string {
 	return fn
 }
 
-func get_filename(s string) string {
+func getFilename(s string) string {
 	fn := ""
 	if strings.Contains(s, "http://") {
 		fn = s[strings.Index(s, "http://")+7:]
@@ -102,7 +107,7 @@ func get_filename(s string) string {
 	return fn
 }
 
-func post_slack(TOKEN string, CHANNEL string, fn string) {
+func postSlack(TOKEN string, CHANNEL string, fn string) {
 	f, err := os.Open(fn)
 	if err != nil {
 		panic("error")
